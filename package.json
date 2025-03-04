@@ -1,0 +1,28 @@
+{
+  "name": "backend-tienda-virtual",
+  "version": "1.0.0",
+  "description": "Backend funcional para tienda de computación (Node + Express + Prisma + PostgreSQL) con Google OAuth",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "prisma": "prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.0.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^9.0.0",
+    "passport": "^0.6.0",
+    "passport-google-oauth20": "^2.0.0",
+    "prisma": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.16.1",
+    "connect-history-api-fallback": "^2.0.0",
+    "nodemon": "^3.1.9"
+  }
+}
