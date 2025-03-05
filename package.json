@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.16.1",
+    "@vitejs/plugin-vue": "^5.2.1",
     "connect-history-api-fallback": "^2.0.0",
     "nodemon": "^3.1.9"
   }
