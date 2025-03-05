@@ -34,6 +34,38 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Rutas estáticas para productos destacados se definen antes de la ruta dinámica
+
+// Obtener productos más vendidos (top 10)
+router.get('/destacados/mas-vendidos', async (req, res) => {
+  try {
+    const productosVendidos = await prisma.producto.findMany({
+      orderBy: { ventas: 'desc' },
+      take: 10
+    });
+    return res.json(productosVendidos);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error obteniendo productos más vendidos' });
+  }
+});
+
+// Obtener productos recientes (top 10)
+router.get('/destacados/recientes', async (req, res) => {
+  try {
+    const productosRecientes = await prisma.producto.findMany({
+      orderBy: { creadoEn: 'desc' },
+      take: 10
+    });
+    return res.json(productosRecientes);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error obteniendo productos recientes' });
+  }
+});
+
+// Rutas dinámicas (por ID) se definen después de las rutas estáticas
+
 // Obtener producto por ID
 router.get('/:id', async (req, res) => {
   const id = parseInt(req.params.id);
@@ -92,34 +124,6 @@ router.delete('/:id', autenticarToken, async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Error eliminando producto' });
-  }
-});
-
-// Obtener productos más vendidos (top 10)
-router.get('/destacados/mas-vendidos', async (req, res) => {
-  try {
-    const productosVendidos = await prisma.producto.findMany({
-      orderBy: { ventas: 'desc' },
-      take: 10
-    });
-    return res.json(productosVendidos);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error obteniendo productos más vendidos' });
-  }
-});
-
-// Obtener productos recientes (top 10)
-router.get('/destacados/recientes', async (req, res) => {
-  try {
-    const productosRecientes = await prisma.producto.findMany({
-      orderBy: { creadoEn: 'desc' },
-      take: 10
-    });
-    return res.json(productosRecientes);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error obteniendo productos recientes' });
   }
 });
 
