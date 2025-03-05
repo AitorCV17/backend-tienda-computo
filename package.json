@@ -1,7 +1,7 @@
 {
   "name": "backend-tienda-virtual",
   "version": "1.0.0",
-  "description": "Backend funcional para tienda de computación (Node + Express + Prisma + PostgreSQL) con Google OAuth",
+  "description": "Backend funcional para tienda de computación con Google OAuth y estructura mejorada en español",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -15,6 +15,8 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^6.7.0",
+    "helmet": "^6.0.0",
     "jsonwebtoken": "^9.0.0",
     "passport": "^0.6.0",
     "passport-google-oauth20": "^2.0.0",

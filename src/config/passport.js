@@ -1,4 +1,7 @@
-// src/config/passport.js
+/**
+ * Archivo: src/config/passport.js
+ * Descripción: Configuración de Passport para autenticación con Google OAuth2.
+ */
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const bcrypt = require('bcryptjs');
@@ -12,38 +15,40 @@ passport.use(new GoogleStrategy({
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
-      const email = profile.emails && profile.emails[0] ? profile.emails[0].value : '';
-      const username = profile.displayName || (email ? email.split('@')[0] : 'googleUser');
-      if (!email) {
-        return done(null, false, { message: 'No email in Google profile' });
+      const correo = profile.emails && profile.emails[0] ? profile.emails[0].value : '';
+      const nombreUsuario = profile.displayName || (correo ? correo.split('@')[0] : 'usuarioGoogle');
+      if (!correo) {
+        return done(null, false, { message: 'No se encontró correo en el perfil de Google' });
       }
-      let user = await prisma.user.findUnique({ where: { email } });
-      if (!user) {
-        const randomPass = Date.now().toString();
-        const hashed = await bcrypt.hash(randomPass, 10);
-        user = await prisma.user.create({
+      // Buscar usuario por correo
+      let usuario = await prisma.usuario.findUnique({ where: { correo } });
+      if (!usuario) {
+        // Si no existe, crear usuario con contraseña aleatoria
+        const contrasenaAleatoria = Date.now().toString();
+        const contrasenaHasheada = await bcrypt.hash(contrasenaAleatoria, 10);
+        usuario = await prisma.usuario.create({
           data: {
-            username,
-            email,
-            password: hashed
+            nombreUsuario,
+            correo,
+            contrasena: contrasenaHasheada
           }
         });
       }
-      return done(null, user);
+      return done(null, usuario);
     } catch (error) {
       return done(error, null);
     }
   }
 ));
 
-passport.serializeUser((user, done) => {
-  done(null, user.username);
+passport.serializeUser((usuario, done) => {
+  done(null, usuario.nombreUsuario);
 });
 
-passport.deserializeUser(async (username, done) => {
+passport.deserializeUser(async (nombreUsuario, done) => {
   try {
-    const user = await prisma.user.findUnique({ where: { username } });
-    done(null, user);
+    const usuario = await prisma.usuario.findUnique({ where: { nombreUsuario } });
+    done(null, usuario);
   } catch (error) {
     done(error, null);
   }

@@ -1,4 +1,7 @@
-// src/config/config.js
+/**
+ * Archivo: src/config/config.js
+ * Descripción: Configuración del entorno y variables globales.
+ */
 require('dotenv').config();
 
 module.exports = {
