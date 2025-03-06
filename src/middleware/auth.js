@@ -17,10 +17,17 @@ const autenticarToken = async (req, res, next) => {
       return res.status(403).json({ message: 'Token inválido' });
     }
     try {
-      const usuario = await prisma.usuario.findUnique({ where: { nombreUsuario: payload.sub } });
+      // Convertir lo que venga en payload.sub a número
+      const userId = parseInt(payload.sub, 10);
+      if (isNaN(userId)) {
+        return res.status(403).json({ message: 'Token inválido (ID no es un número)' });
+      }
+
+      const usuario = await prisma.usuario.findUnique({ where: { id: userId } });
       if (!usuario) {
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
+
       req.usuario = usuario;
       next();
     } catch (error) {

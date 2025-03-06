@@ -1,7 +1,3 @@
-/**
- * Archivo: src/routes/carrito.js
- * Descripción: Rutas para manejo del carrito de compras.
- */
 const express = require('express');
 const router = express.Router();
 const prisma = require('../prismaClient');
@@ -15,19 +11,31 @@ router.post('/', autenticarToken, async (req, res) => {
     if (!producto) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
-    if (producto.stock < cantidad) {
-      return res.status(409).json({ message: `Stock insuficiente para ${producto.nombre}` });
-    }
+
     const itemExistente = await prisma.carritoItem.findFirst({
       where: { usuarioId: req.usuario.id, productoId }
     });
+    // Nueva cantidad final
+    const cantidadFinal = itemExistente
+      ? itemExistente.cantidad + cantidad
+      : cantidad;
+
+    // Validar stock
+    if (cantidadFinal > producto.stock) {
+      return res.status(409).json({
+        message: `Stock insuficiente para ${producto.nombre}. Solo hay ${producto.stock} en total.`
+      });
+    }
+
     let carritoItem;
     if (itemExistente) {
+      // Actualiza sumando
       carritoItem = await prisma.carritoItem.update({
         where: { id: itemExistente.id },
-        data: { cantidad: itemExistente.cantidad + cantidad }
+        data: { cantidad: cantidadFinal }
       });
     } else {
+      // Crea el ítem
       carritoItem = await prisma.carritoItem.create({
         data: {
           usuarioId: req.usuario.id,
@@ -40,6 +48,36 @@ router.post('/', autenticarToken, async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Error agregando ítem al carrito' });
+  }
+});
+
+// Actualizar cantidad de ítem en el carrito
+router.put('/:id', autenticarToken, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { cantidad } = req.body;
+  try {
+    const item = await prisma.carritoItem.findUnique({ where: { id } });
+    if (!item || item.usuarioId !== req.usuario.id) {
+      return res.status(404).json({ message: 'Ítem no encontrado en el carrito' });
+    }
+    const producto = await prisma.producto.findUnique({ where: { id: item.productoId } });
+    if (!producto) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+    // Validar stock con la nueva cantidad
+    if (cantidad > producto.stock) {
+      return res.status(409).json({
+        message: `Stock insuficiente para ${producto.nombre}. Solo hay ${producto.stock} en total.`
+      });
+    }
+    const updatedItem = await prisma.carritoItem.update({
+      where: { id },
+      data: { cantidad }
+    });
+    return res.json(updatedItem);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error actualizando cantidad en el carrito' });
   }
 });
 
